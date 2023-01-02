@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-
+const data =  require("./data")
 const config = require("./config.json");
 
 //== connect to database
@@ -10,10 +10,11 @@ const mongoURI =
 let mongoose = require("mongoose");
 const Leaderboard = require("./model");
 
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// commenting it out as MONGO URI isn't valid which leads to error and closing of nodejs process
+// mongoose.connect(mongoURI, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
 const db = mongoose.connection;
 db.on("error", (err) => console.log(err));
 db.once("open", () => console.log("connected to database"));
@@ -29,7 +30,24 @@ app.get("/", (req, res) => {
 });
 
 // your code here!
+app.get("/topRankings", (req,res)=>{
+  let {
+    limit,
+    offset
+  } = req.query;
+  limit = Number(limit);
+  offset = Number(offset);
+  if(!limit){
+    limit = 20;
+  }
+  if(!offset){
+    offset = 0;
+  }
+  let skipped = data.data.slice(offset);
+  let limitData = skipped.slice(0, limit);
 
+  res.json(limitData)
+})
 // ==end==
 
 module.exports = { app, db };
